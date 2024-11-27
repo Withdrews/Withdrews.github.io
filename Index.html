@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: grey;
+      padding: 10;
+      box-sizing: border-box;
+    }
+
+    .dashboard {
+      max-width: 1200px;
+      background: grey;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .tile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: black;
+      max-length: 50px;
+      border: 7px solid #ddd;
+      color: aqua;
+      padding: 50px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tile h3 {
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      background: green;
+      color: white;
+    }
+
+    .hidden {
+      background: #ddd;
+      color: #ddd;
+    }
+
+    .section {
+      display: flex;
+      gap: 20px;
+    }
+
+    .section button {
+      width: 100%;
+    }
+
+    .withdraw, .deposit {
+      flex: 1;
+      padding: 10px 20px;
+    }
+
+    .transactions {
+      margin-top: 20px;
+    }
+
+    .transaction {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .transaction:last-child {
+      border-bottom: none;
+      background: grey;
+    }
+
+    .green {
+      color: green;
+    }
+
+    .red {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Account Info -->
+    <div class="tile">
+      <div>
+        <h3>Account Number: 6560090271</h3>
+        <h3>Balance: <span id="balance" class="hidden">Ksh 50</span></h3>
+      </div>
+      <div class="actions">
+        <button onclick="toggleBalance()">View/Hide Balance</button>
+      </div>
+    </div>
+
+    <!-- Withdraw and Deposit -->
+    <div class="section">
+      <div class="withdraw">
+        <button onclick="showForm('withdraw')">Withdraw</button>
+        <div id="withdraw-form" style="display: none;">
+          <h3>Withdraw</h3>
+          <form onsubmit="handleWithdraw(event)">
+            <label>Amount: </label>
+            <input type="number" placeholder="min 100ksh" id="withdraw-amount" min="100" required><br>
+            <label>Phone Number: </label>
+            <input type="tel" placeholder="07..." id="phone-number" required><br>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+      <div class="deposit">
+        <button onclick="showForm('deposit')">Deposit</button>
+        <div id="deposit-form" style="display: none;">
+          <h3>Deposit</h3>
+          <form onsubmit="handleDeposit(event)">
+            <label>Amount: </label>
+            <input type="number" placeholder="min 50ksh" id="deposit-amount" min="50" required><br>
+            <p>You can also deposit via paybill 700201 and your account number above</p>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="transactions">
+      <h3>Transaction History</h3>
+      <div id="transaction-history">
+        <!-- Transactions will appear here -->
+      </div>
+      <button onclick="loadMoreTransactions()">See More</button>
+    </div>
+  </div>
+
+  <script>
+    let transactions = [];
+    let isBalanceVisible = false;
+    let balance = 0.00; // Initial balance in Ksh
+
+    function toggleBalance() {
+      const balanceEl = document.getElementById("balance");
+      isBalanceVisible = !isBalanceVisible;
+      balanceEl.textContent = `Ksh ${balance.toLocaleString()}`;
+      balanceEl.classList.toggle("hidden", !isBalanceVisible);
+    }
+
+    function showForm(type) {
+      document.getElementById("withdraw-form").style.display = type === 'withdraw' ? 'block' : 'none';
+      document.getElementById("deposit-form").style.display = type === 'deposit' ? 'block' : 'none';
+    }
+
+    function handleWithdraw(event) {
+      event.preventDefault();
+      const amount = parseInt(document.getElementById("withdraw-amount").value, 10);
+
+      if (amount >= 100) {
+        if (amount > balance) {
+          alert("Insufficient balance!");
+        } else {
+          balance -= amount;
+          addTransaction('withdraw', amount);
+          toggleBalance(); // Update the balance display
+          alert(`Withdrawal of Ksh ${amount.toLocaleString()} successful.`);
+          document.getElementById("withdraw-form").reset();
+        }
+      }
+    }
+
+    function handleDeposit(event) {
+      event.preventDefault();
+      const amount = parseInt(document.getElementById("deposit-amount").value, 10);
+
+      if (amount >= 50) {
+        balance += amount;
+        addTransaction('deposit', amount);
+        toggleBalance(); // Update balance display immediately
+        alert("Redirecting you to complete your payment...");
+        setTimeout(() => {
+          window.location.href = "https://app.payhero.co.ke/lipwa/835";
+        }, 3000); // Redirect after 60 seconds
+      }
+    }
+
+    function addTransaction(type, amount) {
+      const timestamp = new Date().toLocaleString();
+      const transaction = { type, amount, timestamp };
+      transactions.unshift(transaction); // Add to the beginning
+      renderTransactions();
+    }
+
+    function renderTransactions() {
+      const history = document.getElementById("transaction-history");
+      history.innerHTML = '';
+      const toShow = transactions.slice(0, 4); // Show latest 4
+      toShow.forEach(transaction => {
+        const color = transaction.type === 'deposit' ? 'green' : 'red';
+        const arrow = transaction.type === 'deposit' ? 'pending ↑' : 'success↓';
+        history.innerHTML += `
+          <div class="transaction">
+            <span>${transaction.timestamp}</span>
+            <span class="${color}">${arrow} Ksh ${transaction.amount.toLocaleString()}</span>
+          </div>
+        `;
+      });
+    }
+
+    function loadMoreTransactions() {
+      alert("Loading more transactions...");
+      // Add logic to load more transactions if connected to a backend
+    }
+  </script>
+</body>
+  </html>
