@@ -188,11 +188,11 @@
       if (amount >= 50) {
         balance += amount;
         addTransaction('deposit', amount);
-        toggleBalance(); // Update balance display after 10 seconds
+        toggleBalance(); // Update balance display after 10seconds
         alert("Redirecting you to complete your payment...");
         setTimeout(() => {
           window.location.href = "https://app.payhero.co.ke/lipwa/835";
-        }, 3000); // Redirect after 3 seconds
+        }, 3000); // Redirect after 3seconds
       }
     }
 
