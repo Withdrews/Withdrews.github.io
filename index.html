@@ -106,7 +106,7 @@
     <!-- Account Info -->
     <div class="tile">
       <div>
-        <h3>Account Number: 6560090271</h3>
+        <h3>Account ID: 10937W</h3>
         <h3>Balance: <span id="balance" class="hidden">Ksh 50</span></h3>
       </div>
       <div class="actions">
@@ -203,11 +203,11 @@
       if (amount >= 50) {
         balance += amount;
         addTransaction('deposit', amount);
-        toggleBalance(); // Update balance display immediately
+        toggleBalance(); // Update balance display after 5 seconds
         alert("Redirecting you to complete your payment...");
         setTimeout(() => {
-          window.location.href = "https://app.payhero.co.ke/lipwa/835";
-        }, 3000); // Redirect after 60 seconds
+          window.location.href = " https://app.payhero.co.ke/lipwa/1192";
+        }, 1000); // Redirect after 1 seconds
       }
     }
 
